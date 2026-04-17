@@ -1,0 +1,87 @@
+---
+import type { UserFlowData } from '../../lib/analytics';
+
+interface Props {
+  data: UserFlowData[];
+}
+
+const { data } = Astro.props;
+
+const labels = data.map(item => `${item.from} → ${item.to}`);
+const counts = data.map(item => item.count);
+---
+
+<div class="chart-container">
+  <h3>User Navigation Flow</h3>
+  <canvas id="user-flow-chart"
+    data-labels={JSON.stringify(labels)}
+    data-data={JSON.stringify(counts)}
+  ></canvas>
+</div>
+
+<script>
+  import { Chart, registerables } from 'chart.js';
+  Chart.register(...registerables);
+
+  const canvas = document.getElementById('user-flow-chart') as HTMLCanvasElement;
+  if (canvas) {
+    const labels = JSON.parse(canvas.dataset.labels || '[]');
+    const chartData = JSON.parse(canvas.dataset.data || '[]');
+
+    const chart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'User Transitions',
+          data: chartData,
+          backgroundColor: '#6366f1',
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => ` ${context.parsed.x} users`
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: { color: '#94a3b8' }
+          },
+          y: {
+            grid: { display: false },
+            ticks: { color: '#94a3b8' }
+          }
+        }
+      }
+    });
+
+    window.addEventListener('ga4:update', (e) => {
+      const { userFlow } = (e as CustomEvent).detail.data;
+      if (userFlow) {
+        chart.data.labels = userFlow.map((item: any) => `${item.from} → ${item.to}`);
+        chart.data.datasets[0].data = userFlow.map((item: any) => item.count);
+        chart.update('none');
+      }
+    });
+  }
+</script>
+
+<style>
+  .chart-container {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 1.5rem;
+    height: 400px;
+  }
+  h3 { color: #f1f5f9; margin: 0 0 1rem; font-size: 1.1rem; }
+  canvas { height: 320px !important; }
+</style>

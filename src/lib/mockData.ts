@@ -143,3 +143,16 @@ export function getLandingPages(limit: number = 10, days: number = 14): LandingP
 export function getRealtimeUsers(): number {
   return Math.floor(Math.random() * 300) + 80;
 }
+
+export function getUserFlow(): UserFlowData[] {
+  return [
+    { from: 'Home', to: 'Products', count: 5420 },
+    { from: 'Home', to: 'Pricing', count: 3210 },
+    { from: 'Home', to: 'About', count: 2100 },
+    { from: 'Products', to: 'Features', count: 4100 },
+    { from: 'Products', to: 'Pricing', count: 1200 },
+    { from: 'Pricing', to: 'Signup', count: 2800 },
+    { from: 'Features', to: 'Signup', count: 1500 },
+    { from: 'About', to: 'Contact', count: 800 },
+  ];
+}

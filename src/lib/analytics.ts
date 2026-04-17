@@ -8,6 +8,7 @@ import {
   getDeviceBreakdown,
   getLandingPages,
   getRealtimeUsers,
+  getUserFlow,
 } from './mockData';
 
 export type {
@@ -19,6 +20,7 @@ export type {
   UserTypeData,
   DeviceData,
   LandingPageData,
+  UserFlowData,
 } from './mockData';
 
 export async function fetchUsersOverTime(days: number = 14) {
@@ -57,8 +59,12 @@ export async function fetchRealtimeUsers() {
   return getRealtimeUsers();
 }
 
+export async function fetchUserFlow() {
+  return getUserFlow();
+}
+
 export async function fetchAllAnalytics(days: number = 14) {
-  const [users, pages, sources, kpis, regions, userTypes, devices, landingPages, realtimeUsers] =
+  const [users, pages, sources, kpis, regions, userTypes, devices, landingPages, realtimeUsers, userFlow] =
     await Promise.all([
       fetchUsersOverTime(days),
       fetchPagesVisited(10),
@@ -69,6 +75,7 @@ export async function fetchAllAnalytics(days: number = 14) {
       fetchDeviceBreakdown(days),
       fetchLandingPages(10, days),
       fetchRealtimeUsers(),
+      fetchUserFlow(),
     ]);
-  return { users, pages, sources, kpis, regions, userTypes, devices, landingPages, realtimeUsers };
+  return { users, pages, sources, kpis, regions, userTypes, devices, landingPages, realtimeUsers, userFlow };
 }

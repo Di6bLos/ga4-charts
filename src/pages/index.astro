@@ -7,13 +7,14 @@ import Regions from '../components/charts/Regions.astro';
 import NewVsReturning from '../components/charts/NewVsReturning.astro';
 import DeviceBreakdown from '../components/charts/DeviceBreakdown.astro';
 import LandingPages from '../components/charts/LandingPages.astro';
+import UserFlow from '../components/charts/UserFlow.astro';
 import KpiCards from '../components/KpiCards.astro';
 import DateRangePicker from '../components/DateRangePicker.astro';
 import { fetchAllAnalytics } from '../lib/analytics';
 
 const {
   users, pages, sources, kpis,
-  regions, userTypes, devices, landingPages, realtimeUsers,
+  regions, userTypes, devices, landingPages, realtimeUsers, userFlow
 } = await fetchAllAnalytics(14);
 ---
 
@@ -42,6 +43,7 @@ const {
     </div>
 
     <div class="grid">
+      <UserFlow data={userFlow} />
       <PagesVisited
         labels={pages.map(p => p.pagePath)}
         data={pages.map(p => p.pageViews)}
