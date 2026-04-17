@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(**)",
+      "Bash(pipx repair *)",
+      "Bash(rm -rf ~/.local/pipx/shared)",
+      "Bash(pipx install *)",
+      "Bash(/opt/homebrew/bin/python3.14 -m pip install git+https://github.com/googleanalytics/google-analytics-mcp.git)",
+      "Bash(python3 -m pip install git+https://github.com/googleanalytics/google-analytics-mcp.git)",
+      "Bash(python3 *)",
+      "Bash(pipx run *)",
+      "Bash(echo \"---EXIT CODE: $?\")",
+      "Read(//opt/homebrew/bin/**)",
+      "Bash(pyenv versions *)",
+      "Bash(rm -rf /Users/carlosprieto/.local/pipx/shared)",
+      "Bash(pipx ensurepath *)",
+      "Bash(pipx interpreter *)",
+      "Bash(export PIPX_DEFAULT_PYTHON=/usr/local/bin/python3.12)",
+      "Bash(npm create *)",
+      "Bash(mkdir -p /tmp/ga4-init)",
+      "Read(//tmp/**)",
+      "Bash(cp -r . /Users/carlosprieto/Repos/ga4-charts/)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:4321)",
+      "Bash(pkill -f \"astro dev\")",
+      "mcp__chrome_devtools__navigate_page",
+      "mcp__chrome_devtools__take_screenshot"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "analytics-mcp": {
+      "command": "pipx",
+      "args": [
+        "run",
+        "--python",
+        "/usr/local/bin/python3.12",
+        "analytics-mcp"
+      ],
+      "env": {
+        "PIPX_DEFAULT_PYTHON": "/usr/local/bin/python3.12",
+        "GOOGLE_APPLICATION_CREDENTIALS": "/Users/carlosprieto/mcp-servers/ga4-mcp/client_secrets.json",
+        "GOOGLE_PROJECT_ID": "enviroissues-websites"
+      }
+    }
+  }
+}

@@ -1,0 +1,60 @@
+---
+interface Props {
+  labels: string[];
+  data: number[];
+}
+
+const { labels, data } = Astro.props;
+---
+
+<div class="chart-container">
+  <h3>Users Over Time</h3>
+  <canvas id="users-chart"
+    data-labels={JSON.stringify(labels)}
+    data-data={JSON.stringify(data)}
+  ></canvas>
+</div>
+
+<script>
+  import { Chart, registerables } from 'chart.js';
+  Chart.register(...registerables);
+
+  const canvas = document.getElementById('users-chart') as HTMLCanvasElement;
+  const labels = JSON.parse(canvas.dataset.labels || '[]');
+  const chartData = JSON.parse(canvas.dataset.data || '[]');
+
+  new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Active Users',
+        data: chartData,
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        fill: true,
+        tension: 0.4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+      }
+    }
+  });
+</script>
+
+<style>
+  .chart-container {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 1.5rem;
+    height: 300px;
+  }
+  h3 { color: #f1f5f9; margin: 0 0 1rem; font-size: 1.1rem; }
+  canvas { height: 220px !important; }
+</style>

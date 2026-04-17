@@ -1,0 +1,62 @@
+---
+interface Props {
+  labels: string[];
+  data: number[];
+}
+
+const { labels, data } = Astro.props;
+---
+
+<div class="chart-container">
+  <h3>Traffic Sources</h3>
+  <canvas id="traffic-chart"
+    data-labels={JSON.stringify(labels)}
+    data-data={JSON.stringify(data)}
+  ></canvas>
+</div>
+
+<script>
+  import { Chart, registerables } from 'chart.js';
+  Chart.register(...registerables);
+
+  const canvas = document.getElementById('traffic-chart') as HTMLCanvasElement;
+  const labels = JSON.parse(canvas.dataset.labels || '[]');
+  const chartData = JSON.parse(canvas.dataset.data || '[]');
+
+  new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data: chartData,
+        backgroundColor: [
+          '#6366f1', '#8b5cf6', '#a855f7', '#d946ef',
+          '#ec4899', '#f43f5e'
+        ],
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '60%',
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { color: '#94a3b8', padding: 16, usePointStyle: true }
+        }
+      }
+    }
+  });
+</script>
+
+<style>
+  .chart-container {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 1.5rem;
+    height: 300px;
+  }
+  h3 { color: #f1f5f9; margin: 0 0 1rem; font-size: 1.1rem; }
+  canvas { height: 220px !important; }
+</style>

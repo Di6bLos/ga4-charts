@@ -1,0 +1,48 @@
+---
+import Layout from '../layouts/Layout.astro';
+import UsersOverTime from '../components/charts/UsersOverTime.astro';
+import PagesVisited from '../components/charts/PagesVisited.astro';
+import TrafficSource from '../components/charts/TrafficSource.astro';
+import { fetchAllAnalytics } from '../lib/analytics';
+
+const { users, pages, sources } = await fetchAllAnalytics();
+---
+
+<Layout>
+  <main>
+    <header>
+      <h1>GA4 Dashboard</h1>
+      <p>Real-time analytics overview</p>
+    </header>
+
+    <div class="grid">
+      <UsersOverTime
+        labels={users.map(u => u.date)}
+        data={users.map(u => u.activeUsers)}
+        label="Active Users"
+      />
+      <PagesVisited
+        labels={pages.map(p => p.pagePath)}
+        data={pages.map(p => p.pageViews)}
+        label="Page Views"
+      />
+      <TrafficSource
+        labels={sources.map(s => `${s.source} / ${s.medium}`)}
+        data={sources.map(s => s.sessions)}
+        label="Sessions"
+      />
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+  header { margin-bottom: 2rem; }
+  h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+  p { color: #94a3b8; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 1.5rem;
+  }
+</style>
