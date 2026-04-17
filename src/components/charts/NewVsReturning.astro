@@ -1,0 +1,64 @@
+---
+interface Props {
+  newUsers: number;
+  returningUsers: number;
+}
+const { newUsers, returningUsers } = Astro.props;
+---
+
+<div class="chart-container">
+  <h3>New vs Returning Users</h3>
+  <canvas id="new-returning-chart"
+    data-new={newUsers}
+    data-returning={returningUsers}
+  ></canvas>
+</div>
+
+<script>
+  import { Chart, registerables } from 'chart.js';
+  Chart.register(...registerables);
+
+  const canvas = document.getElementById('new-returning-chart') as HTMLCanvasElement;
+  const newVal = +(canvas.dataset.new || 0);
+  const retVal = +(canvas.dataset.returning || 0);
+
+  const chart = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels: ['New Users', 'Returning Users'],
+      datasets: [{
+        data: [newVal, retVal],
+        backgroundColor: ['#6366f1', '#34d399'],
+        borderWidth: 0,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '60%',
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { color: '#94a3b8', padding: 16, usePointStyle: true },
+        },
+      },
+    },
+  });
+
+  window.addEventListener('ga4:update', (e) => {
+    const { userTypes } = (e as CustomEvent).detail.data;
+    chart.data.datasets[0].data = userTypes.values;
+    chart.update('none');
+  });
+</script>
+
+<style>
+  .chart-container {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 1.5rem;
+    height: 300px;
+  }
+  h3 { color: #f1f5f9; margin: 0 0 1rem; font-size: 1.1rem; }
+  canvas { height: 220px !important; }
+</style>

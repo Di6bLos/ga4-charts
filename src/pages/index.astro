@@ -3,43 +3,86 @@ import Layout from '../layouts/Layout.astro';
 import UsersOverTime from '../components/charts/UsersOverTime.astro';
 import PagesVisited from '../components/charts/PagesVisited.astro';
 import TrafficSource from '../components/charts/TrafficSource.astro';
+import Regions from '../components/charts/Regions.astro';
+import NewVsReturning from '../components/charts/NewVsReturning.astro';
+import DeviceBreakdown from '../components/charts/DeviceBreakdown.astro';
+import LandingPages from '../components/charts/LandingPages.astro';
+import KpiCards from '../components/KpiCards.astro';
+import DateRangePicker from '../components/DateRangePicker.astro';
 import { fetchAllAnalytics } from '../lib/analytics';
 
-const { users, pages, sources } = await fetchAllAnalytics();
+const {
+  users, pages, sources, kpis,
+  regions, userTypes, devices, landingPages, realtimeUsers,
+} = await fetchAllAnalytics(14);
 ---
 
 <Layout>
   <main>
     <header>
-      <h1>GA4 Dashboard</h1>
-      <p>Real-time analytics overview</p>
+      <div class="header-left">
+        <h1>GA4 Dashboard</h1>
+        <p>Analytics overview</p>
+      </div>
+      <DateRangePicker defaultDays={14} />
     </header>
 
-    <div class="grid">
+    <KpiCards
+      bounceRate={kpis.bounceRate}
+      avgSessionDuration={kpis.avgSessionDuration}
+      engagementRate={kpis.engagementRate}
+      realtimeUsers={realtimeUsers}
+    />
+
+    <div class="full-width">
       <UsersOverTime
         labels={users.map(u => u.date)}
         data={users.map(u => u.activeUsers)}
-        label="Active Users"
       />
+    </div>
+
+    <div class="grid">
       <PagesVisited
         labels={pages.map(p => p.pagePath)}
         data={pages.map(p => p.pageViews)}
-        label="Page Views"
       />
       <TrafficSource
         labels={sources.map(s => `${s.source} / ${s.medium}`)}
         data={sources.map(s => s.sessions)}
-        label="Sessions"
+      />
+      <Regions
+        labels={regions.map(r => r.country)}
+        data={regions.map(r => r.sessions)}
+      />
+      <NewVsReturning
+        newUsers={userTypes.newUsers}
+        returningUsers={userTypes.returningUsers}
+      />
+      <DeviceBreakdown
+        labels={devices.map(d => d.device)}
+        data={devices.map(d => d.sessions)}
+      />
+      <LandingPages
+        labels={landingPages.map(p => p.pagePath)}
+        data={landingPages.map(p => p.sessions)}
       />
     </div>
   </main>
 </Layout>
 
 <style>
-  main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-  header { margin-bottom: 2rem; }
-  h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
-  p { color: #94a3b8; }
+  main { max-width: 1280px; margin: 0 auto; padding: 2rem; }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.25rem; }
+  p { color: #94a3b8; font-size: 0.9rem; }
+  .full-width { margin-bottom: 1.5rem; }
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));

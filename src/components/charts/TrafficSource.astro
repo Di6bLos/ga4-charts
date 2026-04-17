@@ -23,7 +23,7 @@ const { labels, data } = Astro.props;
   const labels = JSON.parse(canvas.dataset.labels || '[]');
   const chartData = JSON.parse(canvas.dataset.data || '[]');
 
-  new Chart(canvas, {
+  const chart = new Chart(canvas, {
     type: 'doughnut',
     data: {
       labels,
@@ -47,6 +47,13 @@ const { labels, data } = Astro.props;
         }
       }
     }
+  });
+
+  window.addEventListener('ga4:update', (e) => {
+    const { sources } = (e as CustomEvent).detail.data;
+    chart.data.labels = sources.map((s: { label: string }) => s.label);
+    chart.data.datasets[0].data = sources.map((s: { value: number }) => s.value);
+    chart.update('none');
   });
 </script>
 

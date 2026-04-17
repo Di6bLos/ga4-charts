@@ -25,7 +25,8 @@
       "Bash(curl -s http://localhost:4321)",
       "Bash(pkill -f \"astro dev\")",
       "mcp__chrome_devtools__navigate_page",
-      "mcp__chrome_devtools__take_screenshot"
+      "mcp__chrome_devtools__take_screenshot",
+      "mcp__chrome_devtools__new_page"
     ]
   }
 }

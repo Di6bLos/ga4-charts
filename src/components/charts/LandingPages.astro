@@ -3,13 +3,12 @@ interface Props {
   labels: string[];
   data: number[];
 }
-
 const { labels, data } = Astro.props;
 ---
 
 <div class="chart-container">
-  <h3>Users Over Time</h3>
-  <canvas id="users-chart"
+  <h3>Top Landing Pages</h3>
+  <canvas id="landing-pages-chart"
     data-labels={JSON.stringify(labels)}
     data-data={JSON.stringify(data)}
   ></canvas>
@@ -19,38 +18,41 @@ const { labels, data } = Astro.props;
   import { Chart, registerables } from 'chart.js';
   Chart.register(...registerables);
 
-  const canvas = document.getElementById('users-chart') as HTMLCanvasElement;
+  const canvas = document.getElementById('landing-pages-chart') as HTMLCanvasElement;
   const labels = JSON.parse(canvas.dataset.labels || '[]');
   const chartData = JSON.parse(canvas.dataset.data || '[]');
 
   const chart = new Chart(canvas, {
-    type: 'line',
+    type: 'bar',
     data: {
       labels,
       datasets: [{
-        label: 'Active Users',
+        label: 'Sessions',
         data: chartData,
-        borderColor: '#6366f1',
-        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-        fill: true,
-        tension: 0.4,
-      }]
+        backgroundColor: [
+          '#34d399', '#10b981', '#059669', '#047857',
+          '#065f46', '#064e3b', '#6ee7b7', '#a7f3d0',
+          '#d1fae5', '#ecfdf5',
+        ],
+        borderRadius: 4,
+      }],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      indexAxis: 'y',
       plugins: { legend: { display: false } },
       scales: {
         x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
-      }
-    }
+        y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 11 } } },
+      },
+    },
   });
 
   window.addEventListener('ga4:update', (e) => {
-    const { users } = (e as CustomEvent).detail.data;
-    chart.data.labels = users.map((u: { date: string }) => u.date);
-    chart.data.datasets[0].data = users.map((u: { value: number }) => u.value);
+    const { landingPages } = (e as CustomEvent).detail.data;
+    chart.data.labels = landingPages.map((p: { label: string }) => p.label);
+    chart.data.datasets[0].data = landingPages.map((p: { value: number }) => p.value);
     chart.update('none');
   });
 </script>
@@ -60,8 +62,8 @@ const { labels, data } = Astro.props;
     background: #1e293b;
     border-radius: 12px;
     padding: 1.5rem;
-    height: 300px;
+    height: 360px;
   }
   h3 { color: #f1f5f9; margin: 0 0 1rem; font-size: 1.1rem; }
-  canvas { height: 220px !important; }
+  canvas { height: 280px !important; }
 </style>

@@ -1,0 +1,178 @@
+---
+interface Props {
+  defaultDays?: number;
+}
+const { defaultDays = 14 } = Astro.props;
+---
+
+<div class="date-range-picker">
+  <div class="presets">
+    <button class="preset-btn" data-days="7">7D</button>
+    <button class="preset-btn" data-days="14">14D</button>
+    <button class="preset-btn" data-days="30">30D</button>
+    <button class="preset-btn" data-days="90">90D</button>
+    <button class="preset-btn" id="custom-toggle" data-days="custom">Custom</button>
+  </div>
+  <div class="custom-range" id="custom-range" style="display:none">
+    <input type="date" id="range-start" />
+    <span>—</span>
+    <input type="date" id="range-end" />
+    <button id="apply-custom">Apply</button>
+  </div>
+</div>
+
+<script define:vars={{ defaultDays }}>
+  function generateMockData(days) {
+    const m = days / 14;
+    const today = new Date();
+
+    const users = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      users.push({
+        date: d.toISOString().split('T')[0],
+        value: Math.floor(Math.random() * 2000 + 500),
+      });
+    }
+
+    return {
+      users,
+      kpis: {
+        bounceRate: +(38.2 + (m - 1) * 1.5 + (Math.random() - 0.5) * 2).toFixed(1),
+        avgSessionDuration: Math.floor(185 + (m - 1) * 10 + (Math.random() - 0.5) * 20),
+        engagementRate: +(61.8 - (m - 1) * 1.5 + (Math.random() - 0.5) * 2).toFixed(1),
+      },
+      pages: [
+        { label: '/home', value: 12450 }, { label: '/products', value: 8932 },
+        { label: '/about', value: 5432 }, { label: '/blog', value: 4120 },
+        { label: '/contact', value: 3890 }, { label: '/pricing', value: 2945 },
+        { label: '/docs', value: 2234 }, { label: '/features', value: 1890 },
+        { label: '/signup', value: 1654 }, { label: '/dashboard', value: 1432 },
+      ].map(p => ({ ...p, value: Math.floor(p.value * m) })),
+      sources: [
+        { label: 'google / organic', value: 45230 }, { label: 'twitter / social', value: 12450 },
+        { label: 'linkedin / social', value: 9832 }, { label: '(direct) / (none)', value: 8456 },
+        { label: 'newsletter / email', value: 5234 }, { label: 'bing / organic', value: 3456 },
+      ].map(s => ({ ...s, value: Math.floor(s.value * m) })),
+      regions: [
+        { label: 'United States', value: 42340 }, { label: 'United Kingdom', value: 12100 },
+        { label: 'Germany', value: 8920 }, { label: 'Canada', value: 7650 },
+        { label: 'France', value: 6230 }, { label: 'Australia', value: 5890 },
+        { label: 'India', value: 5240 }, { label: 'Brazil', value: 3980 },
+        { label: 'Netherlands', value: 3410 }, { label: 'Spain', value: 2870 },
+      ].map(r => ({ ...r, value: Math.floor(r.value * m) })),
+      userTypes: {
+        labels: ['New Users', 'Returning Users'],
+        values: [Math.floor(58420 * m), Math.floor(26340 * m)],
+      },
+      devices: [
+        { label: 'Mobile', value: 48230 },
+        { label: 'Desktop', value: 32450 },
+        { label: 'Tablet', value: 4080 },
+      ].map(d => ({ ...d, value: Math.floor(d.value * m) })),
+      landingPages: [
+        { label: '/home', value: 18920 }, { label: '/products', value: 11340 },
+        { label: '/blog', value: 8760 }, { label: '/pricing', value: 6230 },
+        { label: '/features', value: 4890 }, { label: '/docs', value: 3920 },
+        { label: '/about', value: 3100 }, { label: '/signup', value: 2840 },
+        { label: '/contact', value: 1920 }, { label: '/dashboard', value: 1450 },
+      ].map(p => ({ ...p, value: Math.floor(p.value * m) })),
+    };
+  }
+
+  window.ga4Generate = generateMockData;
+
+  function dispatch(days) {
+    const data = generateMockData(days);
+    window.dispatchEvent(new CustomEvent('ga4:update', { detail: { days, data } }));
+  }
+
+  function setActive(btn) {
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  document.querySelectorAll('.preset-btn[data-days]').forEach(btn => {
+    if (btn.dataset.days !== 'custom' && +btn.dataset.days === defaultDays) {
+      btn.classList.add('active');
+    }
+    btn.addEventListener('click', () => {
+      if (btn.dataset.days === 'custom') {
+        const cr = document.getElementById('custom-range');
+        cr.style.display = cr.style.display === 'none' ? 'flex' : 'none';
+        setActive(btn);
+        return;
+      }
+      document.getElementById('custom-range').style.display = 'none';
+      setActive(btn);
+      dispatch(+btn.dataset.days);
+    });
+  });
+
+  document.getElementById('apply-custom').addEventListener('click', () => {
+    const start = new Date(document.getElementById('range-start').value);
+    const end = new Date(document.getElementById('range-end').value);
+    if (!start || !end || isNaN(start) || isNaN(end) || end <= start) return;
+    const days = Math.round((end - start) / (1000 * 60 * 60 * 24));
+    if (days < 1) return;
+    dispatch(days);
+  });
+</script>
+
+<style>
+  .date-range-picker {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .presets {
+    display: flex;
+    gap: 0.25rem;
+    background: #1e293b;
+    border-radius: 8px;
+    padding: 0.25rem;
+  }
+  .preset-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .preset-btn:hover { background: #334155; color: #f1f5f9; }
+  .preset-btn.active { background: #6366f1; color: #fff; }
+  .custom-range {
+    align-items: center;
+    gap: 0.5rem;
+    background: #1e293b;
+    border-radius: 8px;
+    padding: 0.4rem 0.75rem;
+  }
+  .custom-range input[type="date"] {
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #f1f5f9;
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  .custom-range input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.7); }
+  .custom-range span { color: #475569; font-size: 0.85rem; }
+  #apply-custom {
+    background: #6366f1;
+    border: none;
+    color: #fff;
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #apply-custom:hover { background: #4f46e5; }
+</style>

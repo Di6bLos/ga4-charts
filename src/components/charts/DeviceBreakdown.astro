@@ -3,13 +3,12 @@ interface Props {
   labels: string[];
   data: number[];
 }
-
 const { labels, data } = Astro.props;
 ---
 
 <div class="chart-container">
-  <h3>Users Over Time</h3>
-  <canvas id="users-chart"
+  <h3>Device Breakdown</h3>
+  <canvas id="device-chart"
     data-labels={JSON.stringify(labels)}
     data-data={JSON.stringify(data)}
   ></canvas>
@@ -19,38 +18,37 @@ const { labels, data } = Astro.props;
   import { Chart, registerables } from 'chart.js';
   Chart.register(...registerables);
 
-  const canvas = document.getElementById('users-chart') as HTMLCanvasElement;
+  const canvas = document.getElementById('device-chart') as HTMLCanvasElement;
   const labels = JSON.parse(canvas.dataset.labels || '[]');
   const chartData = JSON.parse(canvas.dataset.data || '[]');
 
   const chart = new Chart(canvas, {
-    type: 'line',
+    type: 'doughnut',
     data: {
       labels,
       datasets: [{
-        label: 'Active Users',
         data: chartData,
-        borderColor: '#6366f1',
-        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-        fill: true,
-        tension: 0.4,
-      }]
+        backgroundColor: ['#6366f1', '#8b5cf6', '#a855f7'],
+        borderWidth: 0,
+      }],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
-      }
-    }
+      cutout: '60%',
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { color: '#94a3b8', padding: 16, usePointStyle: true },
+        },
+      },
+    },
   });
 
   window.addEventListener('ga4:update', (e) => {
-    const { users } = (e as CustomEvent).detail.data;
-    chart.data.labels = users.map((u: { date: string }) => u.date);
-    chart.data.datasets[0].data = users.map((u: { value: number }) => u.value);
+    const { devices } = (e as CustomEvent).detail.data;
+    chart.data.labels = devices.map((d: { label: string }) => d.label);
+    chart.data.datasets[0].data = devices.map((d: { value: number }) => d.value);
     chart.update('none');
   });
 </script>
